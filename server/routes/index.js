@@ -147,7 +147,7 @@ router.post("/login",async(req,res)=>{
 }
 })
 //get all doctors
-router.get("/doc",async(req,res)=>{
+router.get("/doc",tokencheck,async(req,res)=>{
     try {
         const docs = await Doctor.findAll()
         res.json(docs)
@@ -157,7 +157,7 @@ router.get("/doc",async(req,res)=>{
   
 })
 //get all clinics
-router.get("/clinics",async(req,res)=>{
+router.get("/clinics",tokencheck,async(req,res)=>{
     try {
         const clinics = await Clinic.findAll()
         res.json(clinics)
