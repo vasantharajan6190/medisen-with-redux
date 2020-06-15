@@ -29,7 +29,7 @@ function Appointments(props){
         const body = {from,to,role,id}
         await fetch("http://localhost:5000/updatetime",{
           method:"PUT",
-          headers:{"Content-type":"application/json"},
+          headers:{"Content-type":"application/json",token:localStorage.token},
           body:JSON.stringify(body)
         })
         setcurrentuser({...currentuser,...changed})

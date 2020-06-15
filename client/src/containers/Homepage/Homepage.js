@@ -33,7 +33,9 @@ function Homepage(props){
         else if(role==="patient"){
             id = currentuser.pat_id
         }
-        const ans = await fetch(`http://localhost:5000/appointments?role=${role}&id=${id}`)
+        const ans = await fetch(`http://localhost:5000/appointments?role=${role}&id=${id}`,{
+          headers:{"Content-type":"application/json",token:localStorage.token}
+        })
         const result = await ans.json()
         if(role==="patient"){
            setappointments(result)

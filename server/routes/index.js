@@ -3,6 +3,9 @@ const bcrypt = require("bcrypt")
 const Doctor  = require("../models/doctor")
 const Patient = require("../models/patient")
 const path = require("path")
+const jwt = require("jsonwebtoken")
+const tokencheck = require("../middleware/tokencheck")
+const tokengenerator = require("../utils/tokengenerator")
 const Clinic = require("../models/clinic")
 const Specialization = require("../models/specializations")
 const fileUpload = require('express-fileupload')
@@ -25,7 +28,8 @@ router.post("/signupdoc",async (req,res)=>{
         const salt = await bcrypt.genSalt(10);
         const hashedpassword = await bcrypt.hash(password,salt)
        const user = await Doctor.create({email,name,password:hashedpassword,age,gender,address,mobile,role,mcino,qualifications,specializations,from,to})
-       res.json(user)
+       const token = tokengenerator(user.doc_id)
+       res.json({backenddata:user,token})
         }
     }
 }
@@ -49,7 +53,8 @@ router.post("/signuppat",async (req,res)=>{
        const salt = await bcrypt.genSalt(10);
        const hashedpassword = await bcrypt.hash(password,salt)
       const user = await Patient.create({email,name,password:hashedpassword,age,gender,address,mobile,role,bloodpressure,bloodgroup,sugarlevel})
-      res.json(user)
+      const token = tokengenerator(user.pat_id)
+      res.json({backenddata:user,token})
        }
    }
 }
@@ -57,7 +62,7 @@ catch(error){
   return res.send("Server Error "+error)
 }
 })
-//client signup
+//clinic signup
 router.post("/signupcli",async (req,res)=>{
     const {name,email,password,age,gender,address,mobile,role,clinicname,specializations,from,to} = req.body
     try{
@@ -73,7 +78,8 @@ router.post("/signupcli",async (req,res)=>{
        const salt = await bcrypt.genSalt(10);
        const hashedpassword = await bcrypt.hash(password,salt)
       const user = await Clinic.create({email,name,password:hashedpassword,age,gender,address,mobile,role,clinicname,specializations,from,to})
-      res.json(user)
+      const token = tokengenerator(user.cli_id)
+      res.json({backenddata:user,token})
        }
    }
 }
@@ -91,7 +97,8 @@ router.post("/login",async(req,res)=>{
            const dbpassword = ans[0].password
            const passwordverify = await bcrypt.compare(password,dbpassword)
            if(passwordverify){
-            return res.json(ans)
+            const token = tokengenerator(ans.pat_id)
+           return res.json({ans,token})
            }
            else{
                return res.json("incorrect")
@@ -107,7 +114,8 @@ router.post("/login",async(req,res)=>{
            const dbpassword = ans[0].password
            const passwordverify = await bcrypt.compare(password,dbpassword)
            if(passwordverify){
-            return res.json(ans)
+            const token = tokengenerator(ans.doc_id)
+            return res.json({ans,token})
            }
            else{
                return res.json("incorrect")
@@ -123,7 +131,8 @@ router.post("/login",async(req,res)=>{
            const dbpassword = ans[0].password
            const passwordverify = await bcrypt.compare(password,dbpassword)
            if(passwordverify){
-            return res.json(ans)
+            const token = tokengenerator(ans.cli_id)
+           return res.json({ans,token})
            }
            else{
                return res.json("incorrect")
@@ -157,7 +166,7 @@ router.get("/clinics",async(req,res)=>{
     }
 })
 //update timings
-router.put("/updatetime",async(req,res)=>{
+router.put("/updatetime",tokencheck,async(req,res)=>{
     const {from,to,id,role} = req.body
     try {
        if(role==="doctor"){
@@ -191,7 +200,7 @@ router.get("/specializations",async(req,res)=>{
 })
 //appointments
 //create appointments
-router.post("/appointments",async(req,res)=>{
+router.post("/appointments",tokencheck,async(req,res)=>{
     const {role,id,pat_id} = req.body
     try {
         if(role==="doctor"){
@@ -207,7 +216,7 @@ router.post("/appointments",async(req,res)=>{
     }
 })
 //get appointments
-router.get("/appointments",async(req,res)=>{
+router.get("/appointments",tokencheck,async(req,res)=>{
     const {role,id} = req.query
     try {
         Appointment.belongsTo(Doctor,{foreignKey:"doc_id"})
@@ -243,7 +252,7 @@ router.get("/appointments",async(req,res)=>{
     }
 })
 //delete appoitnments
-router.delete("/patientdelete",async(req,res)=>{
+router.delete("/patientdelete",tokencheck,async(req,res)=>{
     const {role,id,pat_id} = req.query
     try {
         if(role==="doctor"){
@@ -258,7 +267,7 @@ router.delete("/patientdelete",async(req,res)=>{
         res.json(error)
     }
 })
-router.delete("/docclidelete",async(req,res)=>{
+router.delete("/docclidelete",tokencheck,async(req,res)=>{
     const {pat_id,role,id} = req.query
     try {
         if(role==="doctor"){

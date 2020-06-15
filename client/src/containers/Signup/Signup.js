@@ -41,7 +41,7 @@ function Signup(props){
             headers:{"Content-type":"application/json"},
             body:JSON.stringify(body)
           })
-          const backenddata = await backend.json()
+          const {backenddata,token} = await backend.json()
           if(backenddata==="false"){
             toast.error("User Already exists",{className:"text-center mt-4 rounded"})
            }
@@ -55,6 +55,7 @@ function Signup(props){
           props.oncurrentuser(currentuser)
           setloggedin(true)
           props.onloggedin(true)
+          localStorage.setItem("token",token)
           history.push("/homepage")
            }
           }
@@ -66,7 +67,7 @@ function Signup(props){
               headers:{"Content-type":"application/json"},
               body:JSON.stringify(body)
             })
-            const backenddata = await backend.json()
+            const {backenddata,token} = await backend.json()
           if(backenddata==="false"){
             toast.error("User Already exists",{className:"text-center mt-4 rounded"})
            }
@@ -80,6 +81,7 @@ function Signup(props){
           props.oncurrentuser(currentuser)
           setloggedin(true)
           props.onloggedin(true)
+          localStorage.setItem("token",token)
           history.push("/homepage")
            }
           }
@@ -91,7 +93,7 @@ function Signup(props){
               headers:{"Content-type":"application/json"},
               body:JSON.stringify(body)
             })
-            const backenddata = await backend.json()
+            const {backenddata,token} = await backend.json()
           if(backenddata==="false"){
             toast.error("User Already exists",{className:"text-center mt-4 rounded"})
            }
@@ -103,6 +105,7 @@ function Signup(props){
           toast.success("Successfully Registered",{className:"text-center font-weight-bold font-italic mt-5 rounded"})
           setcurrentuser(user)
           props.oncurrentuser(currentuser)
+          localStorage.setItem("token",token)
           setloggedin(true)
           props.onloggedin(true)
           history.push("/homepage")
